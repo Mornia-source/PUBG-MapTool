@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PUBG地图工具</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 左侧菜单栏 -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <button class="toggle-btn" id="toggleBtn">☰</button>
+                <h1>PUBG地图工具</h1>
+                <button class="sidebar-collapse-btn" id="sidebarCollapseBtn" title="折叠侧边栏">◀</button>
+            </div>
+            <div class="sidebar-content">
+                <div class="menu-section">
+                    <label for="mapSelect">选择地图</label>
+                    <select id="mapSelect">
+                        <optgroup label="标记地图">
+                            <option value="erangel">艾伦格</option>
+                            <option value="taego">泰戈</option>
+                            <option value="rondo">荣都</option>
+                            <option value="vikendi">维寒迪</option>
+                            <option value="deston">帝斯顿</option>
+                            <option value="miramar">米拉玛</option>
+                            <option value="karakin">卡拉金</option>
+                            <option value="paramo">帕拉莫</option>
+                        </optgroup>
+                        <optgroup label="展示地图">
+                            <option value="sanhok">萨诺（展示补给车线路及时间）</option>
+                            <option value="haven">褐湾</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+                <div class="menu-section">
+                    <label>标记类型</label>
+                    <div id="markerCheckboxes" class="checkbox-group">
+                        <!-- 动态生成 -->
+                    </div>
+                </div>
+
+                <div class="menu-section">
+                    <button id="exitEditModeBtn" class="btn btn-danger" style="display: none;">退出编辑模式</button>
+                </div>
+
+                <div class="menu-section" id="editControls" style="display: none;">
+                    <label>编辑模式</label>
+                    <p class="edit-hint">拖动地图移动，单击放置标记</p>
+                    <div class="edit-history-controls">
+                        <button id="undoBtn" class="btn btn-small" title="撤回 (Ctrl+Z)">↶ 撤回</button>
+                        <button id="redoBtn" class="btn btn-small" title="前一步 (Ctrl+Y)">↷ 前一步</button>
+                    </div>
+                    <div class="marker-type-select">
+                        <label>标记类型</label>
+                        <div id="markerTypeGrid" class="marker-type-grid">
+                            <!-- 动态生成 -->
+                        </div>
+                    </div>
+                    <button id="saveConfigBtn" class="btn btn-success">保存配置</button>
+                    <button id="openConfigPanelBtn" class="btn btn-info">打开管理面板</button>
+                    <button id="clearMarkersBtn" class="btn btn-warning">清除所有标记</button>
+                </div>
+
+                <div class="menu-section">
+                    <label>光标样式</label>
+                    <select id="cursorStyleSelect" class="cursor-select">
+                        <option value="default">默认</option>
+                        <option value="crosshair">十字</option>
+                        <option value="pointer">手指</option>
+                        <option value="move">移动</option>
+                    </select>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 右侧地图区域 -->
+        <main class="main-content">
+            <div class="map-header">
+                <div class="zoom-control">
+                    <button id="sidebarExpandBtn" class="sidebar-expand-btn" title="展开菜单">☰</button>
+                    <div class="file-menu">
+                        <button id="fileMenuBtn" class="file-menu-btn" title="文件操作">📁</button>
+                        <div id="fileMenuDropdown" class="file-menu-dropdown" style="display: none;">
+                            <button id="importConfigBtn" class="file-menu-item">导入配置</button>
+                            <button id="exportConfigBtn" class="file-menu-item">导出配置</button>
+                        </div>
+                        <input type="file" id="importFileInput" accept=".json" style="display: none;">
+                    </div>
+                    <label for="zoomSlider">缩放</label>
+                    <input type="range" id="zoomSlider" min="100" max="2000" value="100" class="zoom-slider">
+                    <input type="text" id="zoomText" class="zoom-text" value="100%" readonly>
+                    <button id="resetViewBtn" class="reset-btn" title="重置视图">⟲</button>
+                </div>
+                <div class="language-selector">
+                    <span class="lang-label">地图版本</span>
+                    <button class="lang-btn active" data-lang="zh">站长汉化</button>
+                    <button class="lang-btn" data-lang="en">游戏原版</button>
+                    <button class="lang-btn" data-lang="ib">ibakhmet点位</button>
+                    <button id="fullscreenBtn" class="fullscreen-btn" title="全屏 (F11)">⛶</button>
+                </div>
+            </div>
+            <div class="map-container">
+                <div class="map-viewport" id="mapViewport">
+                    <div class="map-inner" id="mapInner">
+                        <img id="mapImage" src="" alt="地图" class="map-image">
+                    </div>
+                    <canvas id="markerCanvas" class="marker-canvas"></canvas>
+                </div>
+            </div>
+        </main>
+
+        <!-- 右侧管理面板 -->
+        <aside class="config-panel" id="configPanel">
+            <div class="config-panel-header">
+                <h3>标记管理</h3>
+                <button class="config-panel-close-btn" id="configPanelCloseBtn">✕</button>
+            </div>
+            <div class="config-panel-content" id="configPanelContent">
+                <!-- 动态生成标记列表 -->
+            </div>
+        </aside>
+
+        <div id="mapContextMenu" class="context-menu" style="display: none;">
+            <div class="context-menu-header">快捷切换地图</div>
+            <button class="context-menu-item" data-map="erangel">艾伦格</button>
+            <button class="context-menu-item" data-map="taego">泰戈</button>
+            <button class="context-menu-item" data-map="rondo">荣都</button>
+            <button class="context-menu-item" data-map="vikendi">维寒迪</button>
+            <button class="context-menu-item" data-map="deston">帝斯顿</button>
+            <button class="context-menu-item" data-map="miramar">米拉玛</button>
+            <button class="context-menu-item" data-map="haven">褐湾（仅展示）</button>
+            <button class="context-menu-item" data-map="karakin">卡拉金（仅展示）</button>
+            <button class="context-menu-item" data-map="paramo">帕拉莫（仅展示）</button>
+            <button class="context-menu-item" data-map="sanhok">萨诺（仅展示）</button>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
+
